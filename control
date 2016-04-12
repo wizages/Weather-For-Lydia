@@ -1,0 +1,9 @@
+Package: com.wizages.weather
+Name: Weather
+Depends: mobilesubstrate, com.cpdigitaldarkroom.lydia
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: A Awesome Custom Lydia View
+Maintainer: wizage
+Author: wizage
+Section: Tweaks
