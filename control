@@ -1,7 +1,7 @@
 Package: com.wizages.weather
 Name: Weather
-Depends: mobilesubstrate, com.cpdigitaldarkroom.lydia
-Version: 0.0.1
+Depends: mobilesubstrate, com.cpdigitaldarkroom.lydia (>= 0.0.2.4)
+Version: 0.0.2
 Architecture: iphoneos-arm
 Description: A Awesome Custom Lydia View
 Maintainer: wizage

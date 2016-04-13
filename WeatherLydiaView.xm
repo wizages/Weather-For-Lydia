@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 #import "WeatherLydiaView.h"
 
 static NSDictionary *preferences;
@@ -24,10 +25,38 @@ static NSDictionary *preferences;
 	        HBLogError(@"User did not have location services enabled for Weather.app");
 	        return self;
 	    }
-	    [city update];
+	    if([[NSDate date] compare:[[city updateTime] dateByAddingTimeInterval:1800]] == NSOrderedDescending)
+    	{
+		    WeatherLocationManager *weatherLocationManager = [objc_getClass("WeatherLocationManager") sharedWeatherLocationManager];
+
+			CLLocationManager *locationManager = [[CLLocationManager alloc]init];
+			[weatherLocationManager setDelegate:locationManager];
+
+			if(![weatherLocationManager locationTrackingIsReady]) {
+				[weatherLocationManager setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:nil];
+			}
+		
+			[[objc_getClass("WeatherPreferences") sharedPreferences] setLocalWeatherEnabled:YES];
+			[weatherLocationManager setLocationTrackingActive:YES];
+
+			[[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] updateWeatherForLocation:[weatherLocationManager location] city:city];
+
+			[weatherLocationManager setLocationTrackingActive:NO];
+			[locationManager release];
+		}
+
+    	[city update];
 		NSArray* hours = city.hourlyForecasts;
 	    HourlyForecast *hourly;
-	    UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+	    UIBlurEffect *blurEffect;
+	    if(![[preferences objectForKey:@"darkView"] boolValue] || [preferences objectForKey:@"darkView"] == nil)
+	    {
+	    	blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+	    	HBLogDebug(@"Light");
+	    } else
+	    {
+	    	blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+	    }
 	    UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
 	    UIVibrancyEffect *vibrance = [UIVibrancyEffect effectForBlurEffect:blurEffect];
 	    UIVisualEffectView *vibranceView = [[UIVisualEffectView alloc] initWithEffect:vibrance];
@@ -41,7 +70,7 @@ static NSDictionary *preferences;
 	    location.text = [city name];
 	    location.font = [location.font fontWithSize: 32];
 	    location.textAlignment = NSTextAlignmentCenter;
-	    //location.textColor = [UIColor whiteColor];
+	    location.textColor = [UIColor whiteColor];
 	    location.adjustsFontSizeToFitWidth = true;
 	    location.minimumFontSize = 12;
 
@@ -188,7 +217,15 @@ static NSDictionary *preferences;
 	if ([[preferences objectForKey:@"blurEnabled"] boolValue] || [preferences objectForKey:@"blurEnabled"] == nil)
     	return [UIColor clearColor];
     else
-    	return [UIColor colorWithRed:0.0f/255.0f green:0.0f/255.0f blue:0.0f/255.0f alpha:0.2];
+    {
+    	if(![[preferences objectForKey:@"darkView"] boolValue] || [preferences objectForKey:@"darkView"] == nil)
+	    {
+	    	return [UIColor colorWithRed:255.0f/255.0f green:255.0f/255.0f blue:255.0f/255.0f alpha:0.2];
+	    } else
+	    {
+	    	return [UIColor colorWithRed:0.0f/255.0f green:0.0f/255.0f blue:0.0f/255.0f alpha:0.2];
+	    }
+    }
 }
 
 - (void)handleActionForIconTap  {

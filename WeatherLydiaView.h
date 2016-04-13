@@ -39,13 +39,33 @@
 @property (nonatomic, retain) NSArray* hourlyForecasts;
 @property(nonatomic) unsigned long long conditionCode;
 -(void)update;
+- (id)temperature;
+- (id)updateTime;
 @property(copy, nonatomic) NSString *name;
 @end
 
 @interface WeatherPreferences : NSObject
-+(id)sharedPreferences;
--(City*)localWeatherCity;
--(BOOL)isCelsius;
++ (id)sharedPreferences;
+- (id)localWeatherCity;
+- (void)setLocalWeatherEnabled:(BOOL)arg1;
+- (BOOL)isCelsius;
+@end
+
+@interface WeatherLocationManager
++ (id)sharedWeatherLocationManager;
+- (void)setLocationTrackingActive:(BOOL)arg1;
+- (void)setLocationTrackingReady:(BOOL)arg1 activelyTracking:(BOOL)arg2;
+-(void)setLocationTrackingReady:(BOOL)arg1 activelyTracking:(BOOL)arg2 watchKitExtension:(id)arg3;
+- (void)setDelegate:(id)arg1;
+- (id)location;
+- (BOOL)locationTrackingIsReady;
+@end
+
+@interface LocationUpdater
++ (id)sharedLocationUpdater;
+- (void)updateWeatherForLocation:(id)arg1 city:(id)arg2;
+- (void)handleCompletionForCity:(id)arg1 withUpdateDetail:(unsigned long long)arg2;
+- (void)setWeatherBadge:(id)value;
 @end
 
 @implementation UIImage (Colored)

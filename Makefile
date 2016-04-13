@@ -6,7 +6,7 @@ TARGET_LIB_EXT = `-`
 
 TWEAK_NAME = Weather
 Weather_FILES = $(wildcard *.xm)
-Weather_FRAMEWORKS = UIKit
+Weather_FRAMEWORKS = UIKit CoreLocation
 Weather_INSTALL_PATH = /var/mobile/Library/Lydia/Views/com.apple.weather/
 
 include $(THEOS_MAKE_PATH)/tweak.mk
