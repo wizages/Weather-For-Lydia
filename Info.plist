@@ -20,6 +20,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>CPLContactEmail</key>
+	<string>wizagesmax@gmail.com</string>
 	<key>MinimumOSVersion</key>
 	<string>5.0</string>
 	<key>UIDeviceFamily</key>

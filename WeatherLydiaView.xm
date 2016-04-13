@@ -19,7 +19,6 @@ static NSDictionary *preferences;
 
     if (self) {
         WeatherPreferences* prefs = [objc_getClass("WeatherPreferences") sharedPreferences];
-        HBLogDebug(@"dictionary: %@", preferences);
 	    City* city = [prefs localWeatherCity];
 	    if (!prefs) {
 	        HBLogError(@"User did not have location services enabled for Weather.app");
@@ -28,21 +27,34 @@ static NSDictionary *preferences;
 	    [city update];
 		NSArray* hours = city.hourlyForecasts;
 	    HourlyForecast *hourly;
+	    UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+	    UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+	    UIVibrancyEffect *vibrance = [UIVibrancyEffect effectForBlurEffect:blurEffect];
+	    UIVisualEffectView *vibranceView = [[UIVisualEffectView alloc] initWithEffect:vibrance];
+	    if ([[preferences objectForKey:@"blurEnabled"] boolValue] || [preferences objectForKey:@"blurEnabled"] == nil)
+	    {
+	    	blurView.frame = self.frame;
+	    	vibranceView.frame = blurView.frame;
+	    }
 
 	    UILabel *location = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.origin.x, self.frame.size.height*.1 ,self.frame.size.width, self.frame.size.height*.2)];
 	    location.text = [city name];
 	    location.font = [location.font fontWithSize: 32];
 	    location.textAlignment = NSTextAlignmentCenter;
-	    location.textColor = [UIColor whiteColor];
+	    //location.textColor = [UIColor whiteColor];
 	    location.adjustsFontSizeToFitWidth = true;
 	    location.minimumFontSize = 12;
-	    [self addSubview:location];
 
 	    UILabel *currentTemp  = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.origin.x+5, self.frame.size.height*.8, self.frame.size.width, self.frame.size.height*.2)];
 	    hourly = hours[0];
-	    if ([hourly.detail] == nil)
+	   	currentTemp.textAlignment = NSTextAlignmentCenter;
+	    currentTemp.textColor = [UIColor whiteColor];
+	    if (hourly.detail == nil)
 	    {
-	    	location.text = @"Error fetching weather";
+	    	location.text = @"Error";
+	    	currentTemp.text = @"Please enable location services.";
+	    	[self addSubview:location];
+	    	[self addSubview:currentTemp];
 	    	return self;
 	    }
 	    if(![[preferences objectForKey:@"isCel"] boolValue] || [preferences objectForKey:@"isCel"] == nil)
@@ -54,10 +66,7 @@ static NSDictionary *preferences;
 	    	currentTemp.text = [NSString stringWithFormat:@"%.0f°", [hourly.detail floatValue]];
 	    }
 	    //currentTemp.text = [NSString stringWithFormat:@"%.0f°", ([hourly.detail floatValue]*9/5 + 32)];
-	    currentTemp.textAlignment = NSTextAlignmentCenter;
-	    currentTemp.textColor = [UIColor whiteColor];
 	    currentTemp.font = [currentTemp.font fontWithSize: 24];
-	    [self addSubview:currentTemp];
 
 	    long currCode = [city conditionCode];
 		NSString *result = @"";
@@ -155,10 +164,31 @@ static NSDictionary *preferences;
 		UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
 		imageView.frame = CGRectMake(self.frame.origin.x, self.frame.size.height*.3, self.frame.size.width, self.frame.size.height*.5);
 		imageView.contentMode = UIViewContentModeScaleAspectFit;
-		[self addSubview:imageView];
+
+		if ([[preferences objectForKey:@"blurEnabled"] boolValue] || [preferences objectForKey:@"blurEnabled"] == nil)
+	    {
+	    	[vibranceView.contentView addSubview:location];
+	    	[vibranceView.contentView addSubview:currentTemp];
+	    	[blurView.contentView addSubview:vibranceView];
+	    	[self addSubview:blurView];
+	    }
+	    else
+	    {
+	    	[self addSubview:location];
+	    	[self addSubview:currentTemp];
+	    }
+	    [self addSubview:imageView];
 	}
 
     return self;
+}
+
+- (UIColor *)presentationBackgroundColor {	
+	HBLogDebug(@"dictionary: %@", preferences);
+	if ([[preferences objectForKey:@"blurEnabled"] boolValue] || [preferences objectForKey:@"blurEnabled"] == nil)
+    	return [UIColor clearColor];
+    else
+    	return [UIColor colorWithRed:0.0f/255.0f green:0.0f/255.0f blue:0.0f/255.0f alpha:0.2];
 }
 
 - (void)handleActionForIconTap  {
